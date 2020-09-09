@@ -1,0 +1,46 @@
+using SecureAPI.Contexts;
+using SecureAPI.Models;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SecureAPI.Repo
+{
+    public class MovieCrudRepo : IGenericCrudRepo<Movie>
+    {
+        private readonly MovieContext context;
+
+        public MovieCrudRepo(MovieContext context)
+        {
+            this.context = context;
+        }
+        public void Create(Movie model)
+        {
+            this.context.Movies.Add(model);
+        }
+
+        public void Delete(Movie model)
+        {
+            this.context.Movies.Remove(model);
+        }
+
+        public IEnumerable<Movie> GetAll()
+        {
+            return this.context.Movies.ToList();
+        }
+
+        public Movie GetById(int id)
+        {
+            return this.context.Movies.ToList().Where(movie => movie.Id == id).FirstOrDefault();
+        }
+
+        public bool SaveChanges()
+        {
+            return this.context.SaveChanges() >= 0;
+        }
+
+        public void Update(int id)
+        {
+
+        }
+    }
+}

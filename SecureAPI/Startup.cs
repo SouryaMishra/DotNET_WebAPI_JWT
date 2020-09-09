@@ -28,7 +28,6 @@ namespace SecureAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddDbContext<GenreContext>(options => options.UseSqlServer(Configuration.GetConnectionString("MovieConnection")));
             services.AddDbContext<MovieContext>(options => options.UseSqlServer(Configuration.GetConnectionString("MovieConnection")));
         }
 

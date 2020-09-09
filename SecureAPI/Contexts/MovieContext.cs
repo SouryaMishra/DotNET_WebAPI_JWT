@@ -11,5 +11,6 @@ namespace SecureAPI.Contexts
         }
 
         public DbSet<Movie> Movies { get; set; }
+        public DbSet<Genre> Genres { get; set; }
     }
 }

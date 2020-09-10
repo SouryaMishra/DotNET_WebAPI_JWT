@@ -18,6 +18,7 @@ namespace SecureAPI.Models
         [Required]
         [Column(TypeName = "nvarchar(200)")]
         public string Languages { get; set; }
+        [Required]
         public int GenreId { get; set; }
         [ForeignKey("GenreId")]
         public Genre Genre { get; set; }

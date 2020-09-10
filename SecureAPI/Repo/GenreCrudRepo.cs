@@ -13,9 +13,17 @@ namespace SecureAPI.Repo
         {
             this.context = context;
         }
-        public void Create(Genre model)
+        public Genre Create(Genre model)
         {
             this.context.Genres.Add(model);
+            if (this.SaveChanges())
+            {
+                return model;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public void Delete(Genre model)
@@ -28,9 +36,19 @@ namespace SecureAPI.Repo
             return this.context.Genres.ToList();
         }
 
+        public IEnumerable<Movie> GetAllMoviesByGenreId(int genreId)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public Genre GetById(int id)
         {
             return this.context.Genres.ToList().Where(genre => genre.Id == id).FirstOrDefault();
+        }
+
+        public Movie GetMovieByGenreIdAndMovieId(int genreId, int movieId)
+        {
+            throw new System.NotImplementedException();
         }
 
         public bool SaveChanges()
@@ -42,5 +60,7 @@ namespace SecureAPI.Repo
         {
 
         }
+
+
     }
 }

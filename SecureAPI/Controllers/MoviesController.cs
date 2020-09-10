@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using SecureAPI.Dtos.MovieDtos;
 using SecureAPI.Models;
@@ -36,7 +37,7 @@ namespace SecureAPI.Controllers
         {
             var foundMovieModel = movieRepo.GetById(id);
             if (foundMovieModel == null)
-                return NotFound();
+                return NotFound(new { Message = "No movie found with given id", Action = "GetMovieById in MoviesController", HTTPMethod = "GET" });
             else
                 return Ok(this.mapper.Map<MovieReadDto>(foundMovieModel));
         }
@@ -64,7 +65,7 @@ namespace SecureAPI.Controllers
                 return BadRequest(new { Message = "GenreId was not supplied in request body" });
 
             var foundMovieModel = this.movieRepo.GetById(id);
-            if (foundMovieModel == null) return NotFound();
+            if (foundMovieModel == null) return NotFound(new { Message = "No movie found with given id", Action = "UpdateMovie in MoviesController", HTTPMethod = "PUT" });
             else
             {
                 this.mapper.Map(movieUpdateDto, foundMovieModel);
@@ -76,12 +77,40 @@ namespace SecureAPI.Controllers
             }
         }
 
+        [HttpPatch("{id}")]
+        public ActionResult PartialMovieUpdate(int id, JsonPatchDocument<MovieUpdateDto> patchDocument)
+        {
+            var foundMovieModel = this.movieRepo.GetById(id);
+
+            if (foundMovieModel == null)
+                return NotFound(new { Message = "No movie found with given id", Action = "PartialMovieUpdate in MoviesController", HTTPMethod = "PATCH" });
+            else
+            {
+                var movieUpdateDto = this.mapper.Map<MovieUpdateDto>(foundMovieModel);
+
+                patchDocument.ApplyTo(movieUpdateDto, ModelState);
+
+                if (!TryValidateModel(movieUpdateDto))
+                {
+                    return ValidationProblem(ModelState);
+                }
+
+                this.mapper.Map(movieUpdateDto, foundMovieModel);
+
+                if (!this.movieRepo.SaveChanges())
+                    return StatusCode(500);
+
+                return NoContent();
+            }
+
+        }
+
         [HttpDelete("{id}")]
         public ActionResult DeleteMovie(int id)
         {
             var foundMovieModel = movieRepo.GetById(id);
             if (foundMovieModel == null)
-                return NotFound();
+                return NotFound(new { Message = "No movie found with given id", Action = "DeleteMovie in MoviesController", HTTPMethod = "DELETE" });
             else
             {
                 this.movieRepo.Delete(foundMovieModel);

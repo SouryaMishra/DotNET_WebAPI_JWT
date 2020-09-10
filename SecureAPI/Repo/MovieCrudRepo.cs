@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SecureAPI.Contexts;
 using SecureAPI.Models;
 using System.Collections.Generic;
@@ -53,7 +54,16 @@ namespace SecureAPI.Repo
 
         public bool SaveChanges()
         {
-            return this.context.SaveChanges() >= 0;
+            var status = false;
+            try
+            {
+                status = this.context.SaveChanges() >= 0;
+            }
+            catch (DbUpdateException ex)
+            {
+                return false;
+            }
+            return status;
         }
 
         public void Update(int id)

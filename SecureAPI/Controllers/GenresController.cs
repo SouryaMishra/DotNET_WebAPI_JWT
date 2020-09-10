@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using SecureAPI.Dtos.GenreDtos;
 using SecureAPI.Dtos.MovieDtos;
@@ -96,6 +97,7 @@ namespace SecureAPI.Controllers
                 return CreatedAtRoute(nameof(GetGenreById), new { id = genreReadDto.Id }, genreReadDto);
             }
         }
+
         [HttpPut("{id}")]
         public ActionResult<GenreReadDto> UpdateGenre(int id, GenreUpdateDto genreUpdateDto)
         {
@@ -111,6 +113,34 @@ namespace SecureAPI.Controllers
 
                 return NoContent();
             }
+        }
+
+        //api/Genres/id
+        [HttpPatch("{id}")]
+        public ActionResult PartialGenreUpdate(int id, JsonPatchDocument<GenreUpdateDto> patchDocument)
+        {
+            var foundGenreModel = this.genreRepo.GetById(id);
+            if (foundGenreModel == null)
+                return NotFound(new { Message = "No genre found with given id", Action = "PartialGenreUpdate in GenresController", HTTPMethod = "PATCH" });
+            else
+            {
+                var genreUpdateDto = this.mapper.Map<GenreUpdateDto>(foundGenreModel);
+                patchDocument.ApplyTo(genreUpdateDto, ModelState);  //ModelState for validation
+
+                if (!TryValidateModel(genreUpdateDto))
+                {
+                    return ValidationProblem(ModelState);
+                }
+
+                this.mapper.Map(genreUpdateDto, foundGenreModel);
+
+                if (!this.genreRepo.SaveChanges())
+                    return StatusCode(500);
+
+                return NoContent();
+            }
+
+
         }
 
         [HttpDelete("{id}")]
